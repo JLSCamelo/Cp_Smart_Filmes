@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field  # Corrigido: BaseModel
 
 #####-----Gêneros----#######
@@ -20,6 +21,7 @@ class FilmeBase(BaseModel):
     classificacao: str = Field(..., examples=["Livre", "12 anos", "16 anos", "18 anos"])
     nota: float = Field(..., ge=0, le=10)
     genero_id: int
+    poster_path: Optional[str] = None
 
 class FilmeCreate(FilmeBase):  
     pass

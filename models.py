@@ -18,6 +18,7 @@ class Filme(Base):
     titulo = Column(String, nullable=False)
     classificacao = Column(String, nullable=False)  
     nota = Column(Float, nullable=False)
+    poster_path = Column(String, nullable=True)  # caminho relativo, ex: "acao/batman.webp"
 
     genero_id = Column(Integer, ForeignKey("generos.id"), nullable=False)
     genero = relationship("Genero", back_populates="filmes")
