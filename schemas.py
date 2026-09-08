@@ -1,7 +1,6 @@
-from pydantic import BaseModal, Field
+from pydantic import BaseModel, Field  # Corrigido: BaseModel
 
-
-#####-----Generos----#######
+#####-----Gêneros----#######
 class GeneroBase(BaseModel):
     nome: str
 
@@ -10,8 +9,9 @@ class GeneroCreate(GeneroBase):
 
 class GeneroResponse(GeneroBase):
     id: int
+
     class Config:
-        from_attribuites=True
+        from_attributes = True  
 
 #####-----Filmes----#######
 
@@ -21,7 +21,7 @@ class FilmeBase(BaseModel):
     nota: float = Field(..., ge=0, le=10)
     genero_id: int
 
-class FIlmeCreate(FilmeBase):
+class FilmeCreate(FilmeBase):  
     pass
 
 class FilmeResponse(FilmeBase):
@@ -29,4 +29,4 @@ class FilmeResponse(FilmeBase):
     genero: GeneroResponse
 
     class Config:
-        from_attributes=True
+        from_attributes = True
