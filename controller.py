@@ -31,22 +31,25 @@ def obter_genero(genero_id: int, db: Session = Depends(get_db)):
     return genero
 
 
-# ---- Rotas de Filme ----- #
-#
-# NOTA PARA QUEM MEXER NA PARTE 3 (Controller):
-# O campo "poster_path" (ex: "acao/batman.webp") já vem incluso no
-# FilmeCreate e no FilmeResponse (ver schemas.py), então as rotas abaixo
-# já aceitam e devolvem ele sem precisar de nenhuma mudança.
-#
-# O que muda pra vocês:
-# - Ao TESTAR no Swagger (/docs), o poster_path é só um texto, precisa
-#   bater com o nome real do arquivo dentro da pasta filmes/<genero>/.
-# - A pasta filmes/ já está configurada como estática no main.py
-#   (app.mount("/imagens", ...)), então a imagem de um filme fica
-#   acessível em: http://127.0.0.1:8000/imagens/{poster_path}
-#   Ex: poster_path = "acao/batman.webp" -> /imagens/acao/batman.webp
-# - Se quiserem uma rota tipo GET /filmes/{id}/poster que já devolve a
-#   URL completa (em vez do frontend montar ela), é só criar aqui.
+@router.put("/generos/{genero_id}", response_model=GeneroResponse)
+def atualizar_genero(genero_id: int, genero: GeneroCreate, db: Session = Depends(get_db)):
+    atualizado = service.atualizar_genero(db, genero_id, genero)
+    if not atualizado:
+        raise HTTPException(status_code=404, detail="Genero não encontrado")
+    return atualizado
+
+
+@router.delete("/generos/{genero_id}")
+def deletar_genero(genero_id: int, db: Session = Depends(get_db)):
+    resultado = service.excluir_genero(db, genero_id)
+    if resultado == "nao_encontrado":
+        raise HTTPException(status_code=404, detail="Genero não encontrado")
+    if resultado == "possui_filmes":
+        raise HTTPException(
+            status_code=400,
+            detail="Não é possível excluir: existem filmes cadastrados nesse gênero"
+        )
+    return {"detail": "Genero removido com sucesso"}
 
 @router.post("/filmes", response_model=FilmeResponse)
 def criar_filme(filme: FilmeCreate, db: Session = Depends(get_db)):

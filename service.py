@@ -29,6 +29,40 @@ def buscar_genero(db: Session, genero_id: int):
     return db.query(Genero).filter(Genero.id == genero_id).first()
 
 
+def atualizar_genero(db: Session, genero_id: int, dados: GeneroCreate):
+    """Atualiza um gênero existente. Retorna None se ele não existir."""
+    genero = buscar_genero(db, genero_id)
+    if not genero:
+        return None
+
+    genero.nome = dados.nome
+    db.commit()
+    db.refresh(genero)
+    return genero
+
+
+def excluir_genero(db: Session, genero_id: int):
+    """
+    Remove um gênero. Retorna:
+
+"nao_encontrado" se o gênero não existir
+"possui_filmes" se houver filmes ligados a ele (não deixamos excluir,
+  pra não deixar filme "órfão" sem gênero)
+"removido" se a exclusão deu certo
+"""
+
+    genero = buscar_genero(db, genero_id)
+    if not genero:
+            return "nao_encontrado"
+
+    if genero.filmes:
+        return "possui_filmes"
+
+    db.delete(genero)
+    db.commit()
+    return "removido"
+
+
 # ---------- Filme ----------
 
 def criar_filme(db: Session, dados: FilmeCreate):
@@ -65,6 +99,31 @@ def listar_filmes(
 
 def buscar_filme(db: Session, filme_id: int):
     return db.query(Filme).filter(Filme.id == filme_id).first()
+
+
+def atualizar_filme(db: Session, filme_id: int, dados: FilmeCreate):
+    """
+    Atualiza um filme existente. Retorna:
+
+None se o filme não existir
+"genero_invalido" se o genero_id informado não existir
+o filme atualizado se der tudo certo
+"""
+
+    filme = buscar_filme(db, filme_id)
+    if not filme:
+         return None
+
+    genero = buscar_genero(db, dados.genero_id)
+    if not genero:
+        return "genero_invalido"
+
+    for campo, valor in dados.model_dump().items():
+        setattr(filme, campo, valor)
+
+    db.commit()
+    db.refresh(filme)
+    return filme
 
 
 def excluir_filme(db: Session, filme_id: int):
