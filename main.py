@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
 from controller import router
 
@@ -11,6 +12,16 @@ app=FastAPI(
     description="API para gerenciar filmes organizados por gênero, classificação e nota",
     version = "1.0.0",
     )
+
+# Libera o acesso da API para o front-end (arquivos HTML abertos localmente ou via live server)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(router)
 
 # Serve a pasta filmes/ (imagens dos pôsteres) via URL, ex: /imagens/acao/batman.webp

@@ -3,15 +3,53 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from database import get_db
-from schemas import FilmeCreate, FilmeResponse, GeneroCreate, GeneroResponse
+from schemas import (
+    FilmeCreate,
+    FilmeResponse,
+    GeneroCreate,
+    GeneroResponse,
+    UsuarioCreate,
+    UsuarioResponse,
+    UsuarioLogin,
+    Token,
+)
+from security import criar_access_token, obter_usuario_atual
+from models import Usuario
 import service
 
 router = APIRouter()
 
+# --- Rotas de Autenticação --- #
+
+@router.post("/auth/registrar", response_model=UsuarioResponse)
+def registrar(usuario: UsuarioCreate, db: Session = Depends(get_db)):
+    novo_usuario = service.criar_usuario(db, usuario)
+    if not novo_usuario:
+        raise HTTPException(status_code=400, detail="E-mail já cadastrado")
+    return novo_usuario
+
+
+@router.post("/auth/login", response_model=Token)
+def login(dados: UsuarioLogin, db: Session = Depends(get_db)):
+    usuario = service.autenticar_usuario(db, dados.email, dados.senha)
+    if not usuario:
+        raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+    token = criar_access_token({"sub": usuario.email})
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.get("/auth/me", response_model=UsuarioResponse)
+def me(usuario_atual: Usuario = Depends(obter_usuario_atual)):
+    return usuario_atual
+
 # --- Rotas de Gênero --- #
 
 @router.post("/generos", response_model=GeneroResponse)
-def criar_genero(genero: GeneroCreate, db: Session = Depends(get_db)):
+def criar_genero(
+    genero: GeneroCreate,
+    db: Session = Depends(get_db),
+    usuario_atual: Usuario = Depends(obter_usuario_atual),
+):
     novo_genero = service.criar_genero(db, genero)
     if not novo_genero:
         raise HTTPException(status_code=400, detail="Genero já existe")
@@ -19,7 +57,10 @@ def criar_genero(genero: GeneroCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/generos", response_model=List[GeneroResponse])
-def listar_generos(db: Session = Depends(get_db)):
+def listar_generos(
+    db: Session = Depends(get_db),
+    usuario_atual: Usuario = Depends(obter_usuario_atual),
+):
     return service.listar_generos(db)
 
 
@@ -52,7 +93,11 @@ def deletar_genero(genero_id: int, db: Session = Depends(get_db)):
     return {"detail": "Genero removido com sucesso"}
 
 @router.post("/filmes", response_model=FilmeResponse)
-def criar_filme(filme: FilmeCreate, db: Session = Depends(get_db)):
+def criar_filme(
+    filme: FilmeCreate,
+    db: Session = Depends(get_db),
+    usuario_atual: Usuario = Depends(obter_usuario_atual),
+):
     novo_filme = service.criar_filme(db, filme)
     if not novo_filme:
         raise HTTPException(status_code=404, detail="Genero informado não existe")
@@ -65,6 +110,7 @@ def listar_filmes(
     classificacao: Optional[str] = None,
     nota_minima: Optional[float] = None,
     db: Session = Depends(get_db),
+    usuario_atual: Usuario = Depends(obter_usuario_atual),
 ):
     return service.listar_filmes(db, genero_id, classificacao, nota_minima)
 

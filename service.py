@@ -2,8 +2,9 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from models import Filme, Genero
-from schemas import FilmeCreate, GeneroCreate
+from models import Filme, Genero, Usuario
+from schemas import FilmeCreate, GeneroCreate, UsuarioCreate
+from security import gerar_hash_senha, verificar_senha
 
 
 # ---------- Genero ----------
@@ -135,3 +136,32 @@ def excluir_filme(db: Session, filme_id: int):
     db.delete(filme)
     db.commit()
     return True
+
+
+# ---------- Usuário ----------
+
+def criar_usuario(db: Session, dados: UsuarioCreate):
+    """Cria um usuário com senha em hash. Retorna None se o e-mail já existir."""
+    existente = db.query(Usuario).filter(Usuario.email == dados.email).first()
+    if existente:
+        return None
+
+    novo_usuario = Usuario(
+        nome=dados.nome,
+        email=dados.email,
+        senha_hash=gerar_hash_senha(dados.senha),
+    )
+    db.add(novo_usuario)
+    db.commit()
+    db.refresh(novo_usuario)
+    return novo_usuario
+
+
+def autenticar_usuario(db: Session, email: str, senha: str):
+    """Retorna o usuário se e-mail/senha forem válidos, senão None."""
+    usuario = db.query(Usuario).filter(Usuario.email == email).first()
+    if not usuario:
+        return None
+    if not verificar_senha(senha, usuario.senha_hash):
+        return None
+    return usuario

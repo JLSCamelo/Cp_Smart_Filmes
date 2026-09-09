@@ -1,0 +1,305 @@
+:root {
+  --bg: #0f0f13;
+  --bg-card: #1a1a22;
+  --bg-input: #22222c;
+  --accent: #e63946;
+  --accent-hover: #ff4d5e;
+  --text: #f2f2f2;
+  --text-muted: #9a9aa5;
+  --border: #2c2c38;
+  --success: #3ddc97;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+header.topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: #000;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+header.topo .logo {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+}
+
+header.topo nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+header.topo nav a,
+header.topo nav button {
+  color: var(--text);
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+header.topo nav a:hover,
+header.topo nav button:hover {
+  background: var(--bg-card);
+}
+
+header.topo nav .usuario {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 8px 4px;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.subtitulo {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.filtros select,
+.filtros input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.grid-filmes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 20px;
+}
+
+.card-filme {
+  background: var(--bg-card);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease;
+}
+
+.card-filme:hover {
+  transform: translateY(-4px);
+}
+
+.card-filme .poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: #000;
+  display: block;
+}
+
+.card-filme .poster-fallback {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: #2a2a35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 8px;
+}
+
+.card-filme .info {
+  padding: 10px 12px 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card-filme .titulo {
+  font-weight: 600;
+  font-size: 14.5px;
+  line-height: 1.3;
+}
+
+.card-filme .meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.badge-nota {
+  background: var(--accent);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.estado-vazio {
+  color: var(--text-muted);
+  padding: 40px 0;
+  text-align: center;
+}
+
+.card-form {
+  max-width: 420px;
+  margin: 40px auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.card-form h1 {
+  text-align: center;
+}
+
+.card-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.card-form label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.card-form input,
+.card-form select {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.card-form .linha-dupla {
+  display: flex;
+  gap: 12px;
+}
+
+.card-form .linha-dupla > div {
+  flex: 1;
+}
+
+button.btn-primario {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button.btn-primario:hover {
+  background: var(--accent-hover);
+}
+
+.link-alternativo {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.link-alternativo a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.mensagem {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  margin-bottom: 4px;
+}
+
+.mensagem.erro {
+  background: rgba(230, 57, 70, 0.15);
+  color: #ff8a92;
+  border: 1px solid rgba(230, 57, 70, 0.4);
+}
+
+.mensagem.sucesso {
+  background: rgba(61, 220, 151, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(61, 220, 151, 0.35);
+}
+
+.novo-genero {
+  display: flex;
+  gap: 8px;
+}
+
+.novo-genero input {
+  flex: 1;
+}
+
+.novo-genero button {
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 14px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.novo-genero button:hover {
+  border-color: var(--accent);
+}

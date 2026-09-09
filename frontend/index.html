@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cine Henrique — Catálogo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topo" id="navbar"></header>
+
+  <main>
+    <h1>Catálogo de filmes</h1>
+    <p class="subtitulo">Filmes cadastrados no banco de dados.</p>
+
+    <div class="filtros">
+      <select id="filtro-genero">
+        <option value="">Todos os gêneros</option>
+      </select>
+      <select id="filtro-classificacao">
+        <option value="">Qualquer classificação</option>
+        <option value="Livre">Livre</option>
+        <option value="12 anos">12 anos</option>
+        <option value="14 anos">14 anos</option>
+        <option value="16 anos">16 anos</option>
+        <option value="18 anos">18 anos</option>
+      </select>
+      <input type="number" id="filtro-nota" placeholder="Nota mínima" min="0" max="10" step="0.1" style="width: 130px" />
+    </div>
+
+    <div id="mensagem" class="mensagem" style="display: none"></div>
+    <div id="grid-filmes" class="grid-filmes"></div>
+    <p id="estado-vazio" class="estado-vazio" style="display: none">
+      Nenhum filme encontrado. Que tal cadastrar o primeiro?
+    </p>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    exigirLogin();
+    montarNavbar("navbar");
+
+    const gridEl = document.getElementById("grid-filmes");
+    const estadoVazioEl = document.getElementById("estado-vazio");
+    const filtroGenero = document.getElementById("filtro-genero");
+    const filtroClassificacao = document.getElementById("filtro-classificacao");
+    const filtroNota = document.getElementById("filtro-nota");
+
+    async function carregarGeneros() {
+      try {
+        const generos = await apiFetch("/generos");
+        generos.forEach((g) => {
+          const opt = document.createElement("option");
+          opt.value = g.id;
+          opt.textContent = g.nome;
+          filtroGenero.appendChild(opt);
+        });
+      } catch (erro) {
+        mostrarMensagem("mensagem", erro.message);
+      }
+    }
+
+    function montarUrlFilmes() {
+      const params = new URLSearchParams();
+      if (filtroGenero.value) params.set("genero_id", filtroGenero.value);
+      if (filtroClassificacao.value) params.set("classificacao", filtroClassificacao.value);
+      if (filtroNota.value) params.set("nota_minima", filtroNota.value);
+      const query = params.toString();
+      return `/filmes${query ? "?" + query : ""}`;
+    }
+
+    function renderFilmes(filmes) {
+      gridEl.innerHTML = "";
+      estadoVazioEl.style.display = filmes.length === 0 ? "block" : "none";
+
+      filmes.forEach((filme) => {
+        const card = document.createElement("div");
+        card.className = "card-filme";
+
+        const posterUrl = filme.poster_path
+          ? `${API_BASE}/imagens/${filme.poster_path}`
+          : null;
+
+        card.innerHTML = `
+          ${
+            posterUrl
+              ? `<img class="poster" src="${posterUrl}" alt="Pôster de ${filme.titulo}" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className:'poster-fallback', textContent:'Sem imagem'}))" />`
+              : `<div class="poster-fallback">Sem imagem</div>`
+          }
+          <div class="info">
+            <div class="titulo">${filme.titulo}</div>
+            <div class="meta">
+              <span>${filme.genero.nome}</span>
+              <span class="badge-nota">★ ${filme.nota}</span>
+            </div>
+            <div class="meta"><span>${filme.classificacao}</span></div>
+          </div>
+        `;
+        gridEl.appendChild(card);
+      });
+    }
+
+    async function carregarFilmes() {
+      try {
+        const filmes = await apiFetch(montarUrlFilmes());
+        renderFilmes(filmes);
+      } catch (erro) {
+        mostrarMensagem("mensagem", erro.message);
+      }
+    }
+
+    [filtroGenero, filtroClassificacao, filtroNota].forEach((el) =>
+      el.addEventListener("input", carregarFilmes)
+    );
+
+    carregarGeneros().then(carregarFilmes);
+  </script>
+</body>
+</html>

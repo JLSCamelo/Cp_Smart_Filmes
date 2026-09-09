@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar — Cine Henrique</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topo" id="navbar"></header>
+
+  <main>
+    <div class="card-form">
+      <h1>Entrar</h1>
+      <div id="mensagem" class="mensagem" style="display: none"></div>
+      <form id="form-login">
+        <div>
+          <label for="email">E-mail</label>
+          <input type="email" id="email" required />
+        </div>
+        <div>
+          <label for="senha">Senha</label>
+          <input type="password" id="senha" required />
+        </div>
+        <button type="submit" class="btn-primario">Entrar</button>
+      </form>
+      <p class="link-alternativo">
+        Ainda não tem conta? <a href="cadastro.html">Criar conta</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    montarNavbar("navbar");
+
+    document.getElementById("form-login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      mostrarMensagem("mensagem", "");
+
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value;
+
+      try {
+        const resposta = await apiFetch("/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ email, senha }),
+        });
+        salvarToken(resposta.access_token);
+
+        // busca o nome do usuário pra exibir na navbar
+        const eu = await apiFetch("/auth/me");
+        localStorage.setItem("cine_henrique_usuario", eu.nome);
+
+        window.location.href = "index.html";
+      } catch (erro) {
+        mostrarMensagem("mensagem", erro.message);
+      }
+    });
+  </script>
+</body>
+</html>

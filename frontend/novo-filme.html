@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastrar filme — Cine Henrique</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topo" id="navbar"></header>
+
+  <main>
+    <div class="card-form">
+      <h1>Cadastrar filme</h1>
+      <div id="mensagem" class="mensagem" style="display: none"></div>
+
+      <form id="form-filme">
+        <div>
+          <label for="titulo">Título</label>
+          <input type="text" id="titulo" required />
+        </div>
+
+        <div>
+          <label for="genero">Gênero</label>
+          <select id="genero" required>
+            <option value="">Selecione um gênero...</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="novo-genero-nome">Não achou o gênero? Cadastre um novo:</label>
+          <div class="novo-genero">
+            <input type="text" id="novo-genero-nome" placeholder="Ex: Ficção científica" />
+            <button type="button" id="btn-novo-genero">Adicionar</button>
+          </div>
+        </div>
+
+        <div class="linha-dupla">
+          <div>
+            <label for="classificacao">Classificação</label>
+            <select id="classificacao" required>
+              <option value="Livre">Livre</option>
+              <option value="12 anos">12 anos</option>
+              <option value="14 anos">14 anos</option>
+              <option value="16 anos">16 anos</option>
+              <option value="18 anos">18 anos</option>
+            </select>
+          </div>
+          <div>
+            <label for="nota">Nota (0 a 10)</label>
+            <input type="number" id="nota" min="0" max="10" step="0.1" required />
+          </div>
+        </div>
+
+        <div>
+          <label for="poster">Caminho da imagem (opcional)</label>
+          <input type="text" id="poster" placeholder="ex: acao/meufilme.webp" />
+        </div>
+
+        <button type="submit" class="btn-primario">Cadastrar filme</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    exigirLogin();
+    montarNavbar("navbar");
+
+    const selectGenero = document.getElementById("genero");
+
+    async function carregarGeneros() {
+      selectGenero.querySelectorAll("option:not(:first-child)").forEach((o) => o.remove());
+      try {
+        const generos = await apiFetch("/generos");
+        generos.forEach((g) => {
+          const opt = document.createElement("option");
+          opt.value = g.id;
+          opt.textContent = g.nome;
+          selectGenero.appendChild(opt);
+        });
+      } catch (erro) {
+        mostrarMensagem("mensagem", erro.message);
+      }
+    }
+
+    document.getElementById("btn-novo-genero").addEventListener("click", async () => {
+      const nomeInput = document.getElementById("novo-genero-nome");
+      const nome = nomeInput.value.trim();
+      if (!nome) return;
+
+      try {
+        const genero = await apiFetch("/generos", {
+          method: "POST",
+          body: JSON.stringify({ nome }),
+        });
+        await carregarGeneros();
+        selectGenero.value = genero.id;
+        nomeInput.value = "";
+        mostrarMensagem("mensagem", `Gênero "${genero.nome}" criado!`, "sucesso");
+      } catch (erro) {
+        mostrarMensagem("mensagem", erro.message);
+      }
+    });
+
+    document.getElementById("form-filme").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      mostrarMensagem("mensagem", "");
+
+      const titulo = document.getElementById("titulo").value.trim();
+      const genero_id = Number(selectGenero.value);
+      const classificacao = document.getElementById("classificacao").value;
+      const nota = Number(document.getElementById("nota").value);
+      const poster_path = document.getElementById("poster").value.trim() || null;
+
+      if (!genero_id) {
+        mostrarMensagem("mensagem", "Selecione ou cadastre um gênero.");
+        return;
+      }
+
+      try {
+        await apiFetch("/filmes", {
+          method: "POST",
+          body: JSON.stringify({ titulo, genero_id, classificacao, nota, poster_path }),
+        });
+        mostrarMensagem("mensagem", "Filme cadastrado com sucesso!", "sucesso");
+        setTimeout(() => (window.location.href = "index.html"), 1000);
+      } catch (erro) {
+        mostrarMensagem("mensagem", erro.message);
+      }
+    });
+
+    carregarGeneros();
+  </script>
+</body>
+</html>
