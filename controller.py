@@ -76,6 +76,15 @@ def obter_filme(filme_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Filme não encontrado")
     return filme
 
+@router.put("/filmes/{filme_id}", response_model=FilmeResponse)
+def atualizar_filme(filme_id: int, filme: FilmeCreate, db: Session = Depends(get_db)):
+    resultado = service.atualizar_filme(db, filme_id, filme)
+    if resultado is None:
+        raise HTTPException(status_code=404, detail="Filme não encontrado")
+    if resultado == "genero_invalido":
+        raise HTTPException(status_code=404, detail="Genero informado não existe")
+    return resultado
+
 
 @router.delete("/filmes/{filme_id}")
 def deletar_filme(filme_id: int, db: Session = Depends(get_db)):
