@@ -1,4 +1,4 @@
-# Cine Henrique
+# Smart FIlmes
 
 ![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?logo=fastapi)
