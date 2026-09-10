@@ -5,6 +5,12 @@
 ![SQLite](https://img.shields.io/badge/SQLite-07405E?logo=sqlite&logoColor=white)
 ![License](https://img.shields.io/badge/license-academic-lightgrey)
 
+#ALUNOS RESPONSÁVEIS:
+Arthur: RM:568878
+Henrique: RM:570740
+Julia: RM: 574139
+Vinicius: RM:564379
+
 API REST para gerenciamento de um catálogo de filmes, organizados por gênero, classificação indicativa e nota, com autenticação de usuário via JWT.
 
 Desenvolvido com **FastAPI**, **SQLAlchemy** e **SQLite** no backend, e um frontend em **HTML, CSS e JavaScript** que consome essa API.
